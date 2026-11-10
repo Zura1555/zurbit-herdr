@@ -5,16 +5,23 @@ factory plane (plans, tasks, runs, ships) inside the Herdr window, next to
 the terminals they steer. This repo mirrors the layout of the Herdr app
 home so `install.sh` can link it straight in.
 
-## Phase plan
+## Migration plan — the Worker is being deprecated
 
-- **Phase 1 (this folder, now)** — mods are a second frontend for the
-  existing Cloudflare control plane. They call the same REST API the web
-  SPA uses (`/api/work/dispatch/*`) over `fetch`. Nothing on the backend
+The Cloudflare Worker + D1 control plane is going away. Target
+architecture (see the migration research): **one `zurbitd` daemon on the
+hub box** talking to herdr-core over its local socket, state in
+`zurbit.*` core documents + JSONL on hub, mods as the entire UI.
+
+The data layer (`mods/zurbit-factory/api.js`) keeps one HTTP-shaped
+surface throughout so the panel code never changes:
+
+- **Interim** — `base` points at the existing Worker
+  (`/api/work/dispatch/*`). Use only while zurbitd is being built.
+- **Target** — `base` points at `http://127.0.0.1:<port>` on zurbitd
+  (loopback, or tailnet via `tailscale serve` from another desktop).
+  zurbitd re-exposes the same route shape; alternatively the mod can be
+  taught `doc.get`/`doc.set` directly later — either way, only `api.js`
   changes.
-- **Phase 2 (later, if the hub-daemon migration happens)** — the same mods
-  read `zurbit.*` documents on the hub herdr-core and write
-  `zurbit.cmd.*` command docs instead of HTTP. Keep the data layer in
-  `mods/zurbit-factory/api.js`; only that file swaps.
 
 ## Install
 
@@ -37,16 +44,15 @@ The mod needs a base URL and a credential. Resolution order:
 
 ```json
 {
-	"base": "https://your-zurbit-worker.example.com",
-	"cookie": "acp_session=<paste from browser devtools>",
-	"token": "acp_vt_<not yet implemented>"
+	"base": "http://127.0.0.1:7878",
+	"token": "<zurbitd-issued bearer>"
 }
 ```
 
-**Auth gap, known:** the REST API today authenticates humans only via the
-`acp_session` GitHub-OAuth cookie (30-day expiry — works, but rots). The
-planned fix is a viewer credential (`acp_vt_`) minted in the web UI,
-scoped read vs. act — same pattern as `acp_mt_`/`acp_bt_`/`acp_co_`.
+**Auth after the Worker is gone:** no OAuth, no cookies. zurbitd binds
+loopback (trusted by definition) and issues a bearer for tailnet/remote
+access. The interim `cookie` field exists only to point at the legacy
+Worker during the transition.
 
 ## Mods
 
