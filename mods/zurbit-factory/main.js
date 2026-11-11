@@ -200,8 +200,9 @@ export default class ZurbitFactory extends View {
 					.id(`${key}-go`)
 					.bg(bg)
 					.rounded(4)
-					.px(8)
-					.py(3)
+					.px(5)
+					.py(2)
+					.text_size(11)
 					.text_color(fg)
 					.child(armed ? `${label}?` : label)
 					.on_click((_e, cx) => this.act(cx, key, label, fn)),
@@ -210,8 +211,9 @@ export default class ZurbitFactory extends View {
 							.id(`${key}-no`)
 							.bg(t.surface)
 							.rounded(4)
-							.px(8)
-							.py(3)
+							.px(5)
+							.py(2)
+							.text_size(11)
 							.text_color(t.muted)
 							.child("✕")
 							.on_click((_e, cx) => {
