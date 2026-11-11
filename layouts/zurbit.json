@@ -35,6 +35,12 @@
 			"min": 280,
 			"children": [
 				{
+					"id": "inbox",
+					"type": "block",
+					"size": { "weight": 2 },
+					"content": { "mod": "zurbit-inbox" }
+				},
+				{
 					"id": "factory",
 					"type": "block",
 					"size": { "weight": 2 },

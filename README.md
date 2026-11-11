@@ -66,6 +66,7 @@ verbatim contents.
 
 | Mod | What it shows |
 | --- | --- |
+| `zurbit-inbox` | Plain-language "Needs You" queue — everything awaiting a human decision (plan approvals, merge approvals, sign-offs, failures, blocked agents) grouped by urgency. The PM surface; other mods carry the technical detail. |
 | `zurbit-factory` | Plans awaiting approval, ships awaiting merge approval, active runs, recent tasks. Full task lifecycle (dispatch / sign-off / cancel / requeue), ship reconcile, notifications on newly actionable items. Inline-confirm before any mutating POST. |
 | `zurbit-sessions` | Runtime plane mirror: cores, machine lines, and canonical terminals with verbatim degraded states (`stale`/`unreachable`/`orphaned`/…). Send/interrupt/kill steering on live terminals via `/api/work/commands` with command-outcome polling — send uses preset chips (see `prompts` below) or the `zurbit-prompt.txt` draft file since there is no text-input widget. |
 | `zurbit-automation` | Automation rules (enable/disable/delete), recent fires, first-spend approvals (revoke), cost ledger. Read + toggle + delete only — no create forms. |
