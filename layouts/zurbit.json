@@ -5,79 +5,118 @@
 		{
 			"id": "sidebar",
 			"type": "column",
-			"size": { "px": 280 },
+			"size": {
+				"px": 280
+			},
 			"min": 200,
 			"children": [
 				{
 					"id": "spaces",
 					"type": "block",
-					"size": { "weight": 1 },
-					"content": { "mod": "spaces" }
+					"size": {
+						"weight": 2
+					},
+					"content": {
+						"mod": "zurbit-tabs"
+					}
 				},
 				{
 					"id": "agents",
 					"type": "block",
-					"size": { "weight": 1 },
-					"content": { "mod": "agents" }
+					"size": {
+						"weight": 1
+					},
+					"content": {
+						"mod": "agents"
+					}
 				}
 			]
 		},
 		{
 			"id": "center",
 			"type": "column",
-			"size": { "weight": 3 },
+			"size": {
+				"weight": 3
+			},
 			"children": [
 				{
 					"id": "orbs",
 					"type": "block",
-					"size": { "px": 48 },
+					"size": {
+						"px": 48
+					},
 					"min": 40,
-					"content": { "mod": "zurbit-orbs" }
+					"content": {
+						"mod": "zurbit-orbs"
+					}
 				},
 				{
 					"id": "work",
 					"type": "block",
-					"size": { "weight": 1 },
-					"content": { "tab": "active" }
+					"size": {
+						"weight": 1
+					},
+					"content": {
+						"tab": "active"
+					}
 				}
 			]
 		},
 		{
 			"id": "ops",
 			"type": "column",
-			"size": { "px": 340 },
+			"size": {
+				"px": 340
+			},
 			"min": 280,
 			"children": [
 				{
 					"id": "inbox",
 					"type": "block",
-					"size": { "weight": 2 },
-					"content": { "mod": "zurbit-inbox" }
+					"size": {
+						"weight": 2
+					},
+					"content": {
+						"mod": "zurbit-inbox"
+					}
 				},
 				{
 					"id": "factory",
 					"type": "block",
-					"size": { "weight": 2 },
-					"content": { "mod": "zurbit-factory" }
+					"size": {
+						"weight": 2
+					},
+					"content": {
+						"mod": "zurbit-factory"
+					}
 				},
 				{
 					"id": "ops-panels",
 					"type": "stack",
-					"size": { "weight": 2 },
-					"header": { "content": "tabs", "height": 26 },
+					"size": {
+						"weight": 2
+					},
+					"header": {
+						"content": "tabs",
+						"height": 26
+					},
 					"active": "sessions",
 					"children": [
 						{
 							"id": "sessions",
 							"title": "Sessions",
 							"type": "block",
-							"content": { "mod": "zurbit-sessions" }
+							"content": {
+								"mod": "zurbit-sessions"
+							}
 						},
 						{
 							"id": "automation",
 							"title": "Automation",
 							"type": "block",
-							"content": { "mod": "zurbit-automation" }
+							"content": {
+								"mod": "zurbit-automation"
+							}
 						}
 					]
 				}

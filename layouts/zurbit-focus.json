@@ -5,40 +5,60 @@
 		{
 			"id": "sidebar",
 			"type": "column",
-			"size": { "px": 240 },
+			"size": {
+				"px": 240
+			},
 			"min": 200,
 			"children": [
 				{
 					"id": "spaces",
 					"type": "block",
-					"size": { "weight": 1 },
-					"content": { "mod": "spaces" }
+					"size": {
+						"weight": 2
+					},
+					"content": {
+						"mod": "zurbit-tabs"
+					}
 				},
 				{
 					"id": "agents",
 					"type": "block",
-					"size": { "weight": 1 },
-					"content": { "mod": "agents" }
+					"size": {
+						"weight": 1
+					},
+					"content": {
+						"mod": "agents"
+					}
 				}
 			]
 		},
 		{
 			"id": "center",
 			"type": "column",
-			"size": { "weight": 1 },
+			"size": {
+				"weight": 1
+			},
 			"children": [
 				{
 					"id": "orbs",
 					"type": "block",
-					"size": { "px": 48 },
+					"size": {
+						"px": 48
+					},
 					"min": 40,
-					"content": { "mod": "zurbit-orbs" }
+					"content": {
+						"mod": "zurbit-orbs"
+					}
 				},
 				{
 					"id": "work",
 					"type": "block",
-					"size": { "weight": 1 },
-					"content": { "tab": "active" }
+					"size": {
+						"weight": 1
+					},
+					"content": {
+						"tab": "active"
+					}
 				}
 			]
 		}
@@ -49,7 +69,9 @@
 			"edge": "right",
 			"align": "start",
 			"peek": 10,
-			"content": { "mod": "zurbit-inbox" }
+			"content": {
+				"mod": "zurbit-inbox"
+			}
 		}
 	]
 }

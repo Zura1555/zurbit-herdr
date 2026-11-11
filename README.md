@@ -70,6 +70,7 @@ verbatim contents.
 | `zurbit-orbs` | Compact orb strip across the top of the center column — every machine line and canonical terminal as a small animated orb (full-color nebula sprites via `image()`: violet working/breathing, amber waiting/pulsing, vermilion failed, mint done, hollow-dashed stale/unreachable). Grouped by machine line with a legend and "N connected · M lines" on the right. Click an orb to `terminal.peek` its pane (remote lines pass `machine/address`). Read-only; polls the same runtime-plane feed as `zurbit-sessions`. |
 | `zurbit-inbox` | Plain-language "Needs You" queue — everything awaiting a human decision (plan approvals, merge approvals, sign-offs, failures, blocked agents) grouped by urgency. The PM surface; other mods carry the technical detail. |
 | `zurbit-factory` | Plans awaiting approval, ships awaiting merge approval, active runs, recent tasks. Full task lifecycle (dispatch / sign-off / cancel / requeue), ship reconcile, notifications on newly actionable items. Inline-confirm before any mutating POST. |
+| `zurbit-tabs` | Sidebar tab navigation: every space as a collapsible section — the active space expands to show its tabs with Ion status lamps (violet working / amber blocked / mint done / dim idle), pane counts and settled tabs dimmed. Click a tab to focus it (`tab.select`), a space header to switch (`space.select`), `+ new tab`/`+ new space` to create. Local-only data (no control-plane needed). |
 | `zurbit-sessions` | Runtime plane mirror: cores, machine lines, and canonical terminals with verbatim degraded states (`stale`/`unreachable`/`orphaned`/…). Send/interrupt/kill steering on live terminals via `/api/work/commands` with command-outcome polling — send uses preset chips (see `prompts` below) or the `zurbit-prompt.txt` draft file since there is no text-input widget. |
 | `zurbit-automation` | Automation rules (enable/disable/delete), recent fires, first-spend approvals (revoke), cost ledger. Read + toggle + delete only — no create forms. |
 
@@ -83,10 +84,10 @@ halo ring) instead of a `live` text label.
 `zurbit` — the full board (design A):
 
 ```
-sidebar ┃        center         ┃       ops (340px)
-spaces  ┃  ORBS (48px strip)    ┃  Needs You (zurbit-inbox)
-agents  ┃  work (active tab)    ┃  Factory (zurbit-factory)
-        ┃                       ┃  [Sessions | Automation] tabs
+sidebar          ┃        center         ┃       ops (340px)
+zurbit-tabs      ┃  ORBS (48px strip)    ┃  Needs You (zurbit-inbox)
+(spaces > tabs)  ┃  work (active tab)    ┃  Factory (zurbit-factory)
+agents           ┃                       ┃  [Sessions | Automation] tabs
 ```
 
 `zurbit-focus` — the collapsed companion: slim sidebar + orb strip +
