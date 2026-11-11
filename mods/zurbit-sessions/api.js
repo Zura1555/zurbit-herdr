@@ -12,10 +12,26 @@ export class ApiError extends Error {
 	}
 }
 
+/** Prompt presets for the send palette — array of strings (or a JSON
+ * string holding one) from the same three config sources. */
+function resolvePrompts(p, file) {
+	const raw = p?.prompts ?? localStorage.getItem("zurbit.prompts") ?? file.prompts;
+	try {
+		const arr = typeof raw === "string" ? JSON.parse(raw) : raw;
+		if (Array.isArray(arr)) {
+			const list = arr.filter((s) => typeof s === "string" && s.trim());
+			if (list.length) return list;
+		}
+	} catch {}
+	return null;
+}
+
 /**
  * Config resolution: pane props → localStorage → zurbit.json in app home.
- *   { "base": "https://…", "token": "acp_vt_…", "cookie": "acp_session=…" }
+ *   { "base": "https://…", "token": "acp_vt_…", "cookie": "acp_session=…",
+ *     "prompts": ["continue", "…"] }
  * `token` is the planned viewer credential; `cookie` works today.
+ * `prompts` overrides the send palette's preset chips.
  */
 export async function loadConfig(p) {
 	let file = {};
@@ -30,6 +46,7 @@ export async function loadConfig(p) {
 			file.token ??
 			null,
 		cookie: localStorage.getItem("zurbit.cookie") ?? file.cookie ?? null,
+		prompts: resolvePrompts(p, file),
 	};
 }
 

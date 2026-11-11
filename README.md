@@ -56,12 +56,18 @@ loopback (trusted by definition) and issues a bearer for tailnet/remote
 access. The interim `cookie` field exists only to point at the legacy
 Worker during the transition.
 
+**Send prompts (sessions mod):** add `"prompts": ["…"]` to `zurbit.json`
+(same precedence chain, or `localStorage` `zurbit.prompts`) to set the
+send palette's preset chips. For arbitrary text, write
+`~/.config/herdr-app/zurbit-prompt.txt` — the `file:` chip sends its
+verbatim contents.
+
 ## Mods
 
 | Mod | What it shows |
 | --- | --- |
 | `zurbit-factory` | Plans awaiting approval, ships awaiting merge approval, active runs, recent tasks. Full task lifecycle (dispatch / sign-off / cancel / requeue), ship reconcile, notifications on newly actionable items. Inline-confirm before any mutating POST. |
-| `zurbit-sessions` | Runtime plane mirror: cores, machine lines, and canonical terminals with verbatim degraded states (`stale`/`unreachable`/`orphaned`/…). Interrupt/kill steering on live terminals via `/api/work/commands` with command-outcome polling. |
+| `zurbit-sessions` | Runtime plane mirror: cores, machine lines, and canonical terminals with verbatim degraded states (`stale`/`unreachable`/`orphaned`/…). Send/interrupt/kill steering on live terminals via `/api/work/commands` with command-outcome polling — send uses preset chips (see `prompts` below) or the `zurbit-prompt.txt` draft file since there is no text-input widget. |
 | `zurbit-automation` | Automation rules (enable/disable/delete), recent fires, first-spend approvals (revoke), cost ledger. Read + toggle + delete only — no create forms. |
 
 ## Safety
