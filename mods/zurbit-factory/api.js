@@ -80,14 +80,21 @@ const enc = encodeURIComponent;
 export const api = {
 	plans: () => get("/api/work/dispatch/plans"),
 	tasks: () => get("/api/work/dispatch/tasks"),
+	task: (id) => get(`/api/work/dispatch/tasks/${enc(id)}`),
 	runs: () => get("/api/work/dispatch/runs"),
 	ships: () => get("/api/work/dispatch/ships"),
 
 	approvePlan: (id) => post(`/api/work/dispatch/plans/${enc(id)}/approve`),
 	rejectPlan: (id) => post(`/api/work/dispatch/plans/${enc(id)}/reject`),
+	dispatchTask: (id) => post(`/api/work/dispatch/tasks/${enc(id)}/dispatch`),
+	doneTask: (id) => post(`/api/work/dispatch/tasks/${enc(id)}/done`),
+	cancelTask: (id) => post(`/api/work/dispatch/tasks/${enc(id)}/cancel`),
+	requeueTask: (id) => post(`/api/work/dispatch/tasks/${enc(id)}/requeue`),
 	cancelRun: (id) => post(`/api/work/dispatch/runs/${enc(id)}/cancel`),
 	approveShip: (runId, headSha) =>
 		post(`/api/work/dispatch/runs/${enc(runId)}/ship/approve`, {
 			head_sha: headSha,
 		}),
+	reconcileShip: (runId) =>
+		post(`/api/work/dispatch/runs/${enc(runId)}/ship/reconcile`),
 };

@@ -9,6 +9,7 @@ const DONE = new Set(["succeeded", "done", "merged", "approved"]);
 const FAIL = new Set(["failed", "lost", "rejected", "cancelled"]);
 const ACTIVE = new Set(["dispatched", "running", "shipping"]);
 const QUIET_TASK = new Set(["succeeded", "failed", "cancelled"]);
+const TERMINAL_TASK = new Set(["done", "cancelled"]);
 
 function statusColor(t, s) {
 	if (DONE.has(s)) return t.done;
@@ -33,6 +34,9 @@ export default class ZurbitFactory extends View {
 		this.err = null;
 		this.data = { plans: [], tasks: [], runs: [], ships: [] };
 		this.confirming = null;
+		this.expanded = null;
+		this.detail = null;
+		this.known = null;
 		this.loading = true;
 
 		cx.spawn(async (cx) => {
@@ -65,7 +69,84 @@ export default class ZurbitFactory extends View {
 		} catch (e) {
 			this.err = e instanceof ApiError ? `${e.message}` : String(e);
 		}
+		if (!this.err) this.noticeNew();
+		if (
+			this.expanded &&
+			!this.data.tasks.some((tk) => tk.id === this.expanded)
+		) {
+			this.expanded = null;
+			this.detail = null;
+		}
+		if (this.expanded) {
+			try {
+				this.detail = await api.task(this.expanded);
+			} catch {}
+		}
 		cx.notify();
+	}
+
+	/** First successful poll seeds the set silently; later polls notify
+	 * once per newly-actionable plan (awaiting decision) or ship
+	 * (awaiting merge approval). Resolved items dropping out re-arm the
+	 * key, so a re-proposed plan notifies again. */
+	noticeNew() {
+		const { plans, ships } = this.data;
+		const actionable = new Set([
+			...plans
+				.filter((p) => p.status !== "approved" && p.status !== "rejected")
+				.map((p) => `plan:${p.id}`),
+			...ships
+				.filter(
+					(s) =>
+						s.pr_state !== "merged" &&
+						s.pr_state !== "closed" &&
+						(!s.approval || s.approval.stale),
+				)
+				.map((s) => `ship:${s.id}`),
+		]);
+		if (this.known !== null) {
+			const fresh = [...actionable].filter((k) => !this.known.has(k));
+			const nPlans = fresh.filter((k) => k.startsWith("plan:")).length;
+			const nShips = fresh.length - nPlans;
+			if (nPlans) {
+				notify({
+					title: "Zurbit",
+					body: `${nPlans} plan${nPlans === 1 ? "" : "s"} awaiting approval`,
+					level: "info",
+				});
+			}
+			if (nShips) {
+				notify({
+					title: "Zurbit",
+					body: `${nShips} ship${nShips === 1 ? "" : "s"} awaiting merge approval`,
+					level: "info",
+				});
+			}
+		}
+		this.known = actionable;
+	}
+
+	/** Tap a task row → expand its spec + run history; tap again → collapse. */
+	toggleTask(cx, id) {
+		if (this.expanded === id) {
+			this.expanded = null;
+			this.detail = null;
+			cx.notify();
+			return;
+		}
+		this.expanded = id;
+		this.detail = null;
+		cx.notify();
+		cx.spawn(async (cx) => {
+			try {
+				this.detail = await api.task(id);
+			} catch (e) {
+				this.detail = {
+					error: e instanceof ApiError ? e.message : String(e),
+				};
+			}
+			cx.notify();
+		});
 	}
 
 	/** Two-tap confirm → run fn → refresh. key makes each row's confirm independent. */
@@ -134,7 +215,118 @@ export default class ZurbitFactory extends View {
 			.child(`${title} · ${count}`);
 	}
 
-	row(t, key, title, sub, status, buttons) {
+	taskButtons(cx, tk, t) {
+		const btns = [];
+		if (tk.status === "ready") {
+			btns.push(this.btn(cx, `td-${tk.id}`, "Dispatch", () =>
+				api.dispatchTask(tk.id), t));
+		}
+		if (tk.status === "review") {
+			btns.push(this.btn(cx, `tn-${tk.id}`, "Done", () =>
+				api.doneTask(tk.id), t));
+		}
+		if (tk.status === "failed" || tk.escalation) {
+			btns.push(this.btn(cx, `tq-${tk.id}`, "Requeue", () =>
+				api.requeueTask(tk.id), t));
+		}
+		if (!TERMINAL_TASK.has(tk.status)) {
+			btns.push(this.btn(cx, `tc-${tk.id}`, "Cancel", () =>
+				api.cancelTask(tk.id), t, true));
+		}
+		return btns;
+	}
+
+	taskDetail(t, tk) {
+		const box = v_flex().gap(6).p(8).rounded(6).bg(t.raised);
+		const d = this.detail;
+		if (!d) {
+			return box.child(
+				div().text_size(11).text_color(t.muted).child("loading…"),
+			);
+		}
+		if (d.error) {
+			return box.child(
+				div().text_size(11).text_color(t.ansi9).child(`⚠ ${d.error}`),
+			);
+		}
+		if (tk.spec) {
+			box.child(
+				div()
+					.text_size(11)
+					.text_color(t.muted)
+					.child(tk.spec.slice(0, 280)),
+			);
+		}
+		if (tk.escalation || tk.failure_count) {
+			box.child(
+				div()
+					.text_size(11)
+					.text_color(t.blocked)
+					.child(
+						[
+							tk.escalation,
+							tk.failure_count
+								? `${tk.failure_count} failure${tk.failure_count === 1 ? "" : "s"}`
+								: null,
+						]
+							.filter(Boolean)
+							.join(" · "),
+					),
+			);
+		}
+		const runs = d.runs ?? [];
+		if (!runs.length) {
+			box.child(div().text_size(11).text_color(t.muted).child("no runs"));
+		}
+		for (const r of runs.slice(0, 8)) {
+			box.child(
+				h_flex()
+					.gap(8)
+					.items_center()
+					.children([
+						div()
+							.text_size(11)
+							.text_color(t.foreground)
+							.child(`#${r.attempt}`),
+						div()
+							.text_size(11)
+							.text_color(statusColor(t, r.status))
+							.child(r.status ?? "—"),
+						div()
+							.text_size(11)
+							.text_color(t.muted)
+							.flex_1()
+							.truncate()
+							.child(
+								`${r.machine ?? r.worker_id ?? "?"}${r.result_flag ? ` · ${r.result_flag}` : ""}`,
+							),
+						div()
+							.text_size(11)
+							.text_color(t.muted)
+							.child(
+								ago(r.finished_at ?? r.started_at ?? r.dispatched_at),
+							),
+					]),
+			);
+		}
+		return box;
+	}
+
+	row(t, key, title, sub, status, buttons, onToggle) {
+		const titleDiv = div()
+			.text_size(13)
+			.text_color(t.foreground)
+			.truncate()
+			.child(title);
+		const subDiv = div()
+			.text_size(11)
+			.text_color(t.muted)
+			.truncate()
+			.child(sub);
+		if (onToggle) {
+			titleDiv.on_click((_e, cx) => onToggle(cx));
+			subDiv.on_click((_e, cx) => onToggle(cx));
+		}
 		return h_flex()
 			.id(key)
 			.gap(8)
@@ -143,21 +335,7 @@ export default class ZurbitFactory extends View {
 			.bg(t.raised)
 			.items_center()
 			.children([
-				v_flex()
-					.flex_1()
-					.gap(2)
-					.children([
-						div()
-							.text_size(13)
-							.text_color(t.foreground)
-							.truncate()
-							.child(title),
-						div()
-							.text_size(11)
-							.text_color(t.muted)
-							.truncate()
-							.child(sub),
-					]),
+				v_flex().flex_1().gap(2).children([titleDiv, subDiv]),
 				div()
 					.text_size(11)
 					.text_color(statusColor(t, status))
@@ -251,12 +429,20 @@ export default class ZurbitFactory extends View {
 						`${s.base_branch ?? "?"} ← ${s.branch ?? "?"}`,
 						sub,
 						s.merge_ready ? "ready" : "blocked",
-						needsApproval
-							? [
-									this.btn(cx, `sa-${s.id}`, "Approve merge", () =>
-										api.approveShip(s.run_id, s.head_sha), t),
-								]
-							: [],
+						[
+							...(needsApproval
+								? [
+										this.btn(cx, `sa-${s.id}`, "Approve merge", () =>
+											api.approveShip(s.run_id, s.head_sha), t),
+									]
+								: []),
+							...(!s.merge_ready
+								? [
+										this.btn(cx, `sr-${s.id}`, "Reconcile", () =>
+											api.reconcileShip(s.run_id), t),
+									]
+								: []),
+						],
 					),
 				);
 			}
@@ -282,20 +468,28 @@ export default class ZurbitFactory extends View {
 			}
 		}
 
-		const recentTasks = tasks.filter((tk) => !QUIET_TASK.has(tk.status));
+		const recentTasks = tasks.filter(
+			(tk) => !QUIET_TASK.has(tk.status) || tk.escalation,
+		);
 		const shownTasks = (recentTasks.length ? recentTasks : tasks).slice(0, 30);
 		list.child(this.section(t, "TASKS", shownTasks.length));
 		for (const tk of shownTasks) {
-			list.child(
+			const cell = v_flex().gap(4);
+			cell.child(
 				this.row(
 					t,
 					`task-${tk.id}`,
 					tk.title ?? tk.id,
 					`${tk.project ?? ""} · ${ago(tk.updated_at)}${tk.queue_reason ? ` · ${tk.queue_reason}` : ""}`,
 					tk.status,
-					[],
+					this.taskButtons(cx, tk, t),
+					(cx) => this.toggleTask(cx, tk.id),
 				),
 			);
+			if (this.expanded === tk.id) {
+				cell.child(this.taskDetail(t, tk));
+			}
+			list.child(cell);
 		}
 
 		return root.child(list);
