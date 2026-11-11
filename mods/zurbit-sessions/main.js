@@ -3,6 +3,19 @@ import { v_flex, h_flex } from "gpui-base";
 import { theme, notify, appHome, readTextFile } from "herdr";
 import { loadConfig, configure, api, ApiError } from "./api.js";
 
+
+const ION = { working: "#A78BFA", waiting: "#FBBF24", failed: "#FF5C4D", done: "#34D399" };
+const alpha = (c, a) => c + Math.round(Math.min(1, Math.max(0, a)) * 255).toString(16).padStart(2, "0");
+
+// Signal lamp: a colored core inside a faint halo — the static stand-in
+// for a pulse. Replaces the old textual "live" indicator in headers.
+function lamp(color) {
+	return div()
+		.w(10).h(10).rounded_full().bg(alpha(color, 0.25))
+		.flex().items_center().justify_center()
+		.child(div().w(5).h(5).rounded_full().bg(color));
+}
+
 const POLL_MS = 5000;
 const CMD_POLL_MS = 2000;
 const CMD_DEADLINE_MS = 60000;
@@ -391,10 +404,25 @@ export default class ZurbitSessions extends View {
 				.justify_between()
 				.children([
 					div().text_size(14).font_semibold().child("Sessions"),
-					div()
-						.text_size(11)
-						.text_color(this.err ? t.ansi9 : t.muted)
-						.child(this.err ? `⚠ ${this.err}` : "live"),
+					h_flex()
+						.gap(6)
+						.items_center()
+						.children([
+							lamp(
+								this.err
+									? ION.failed
+									: this.loading
+										? ION.waiting
+										: ION.done,
+							),
+							this.err
+								? div()
+										.text_size(11)
+										.text_color(t.muted)
+										.truncate()
+										.child(`⚠ ${this.err}`)
+								: div(),
+						]),
 				]),
 		);
 

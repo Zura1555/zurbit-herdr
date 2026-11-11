@@ -36,7 +36,7 @@ function resolvePrompts(p, file) {
 export async function loadConfig(p) {
 	let file = {};
 	try {
-		file = JSON.parse(await readTextFile(`${appHome()}/zurbit.json`));
+		file = JSON.parse(await readTextFile(`${appHome()}/zurbit.json`)) ?? {};
 	} catch {}
 	return {
 		base: p?.base ?? localStorage.getItem("zurbit.base") ?? file.base ?? null,
