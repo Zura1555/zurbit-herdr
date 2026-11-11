@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+	<defs>
+		<radialGradient id="orbd-core" cx="42%" cy="38%" r="62%">
+			<stop offset="0%" stop-color="#D1FAE5"/>
+			<stop offset="35%" stop-color="#34D399"/>
+			<stop offset="75%" stop-color="#0E9F6E"/>
+			<stop offset="100%" stop-color="#0E9F6E" stop-opacity="0"/>
+		</radialGradient>
+		<radialGradient id="orbd-wisp" cx="50%" cy="50%" r="50%">
+			<stop offset="0%" stop-color="#ECFDF5" stop-opacity="0.85"/>
+			<stop offset="100%" stop-color="#ECFDF5" stop-opacity="0"/>
+		</radialGradient>
+	</defs>
+	<circle cx="24" cy="24" r="15" fill="url(#orbd-core)"/>
+	<ellipse cx="30" cy="18" rx="6.5" ry="4" fill="url(#orbd-wisp)" transform="rotate(-25 30 18)"/>
+</svg>

@@ -1,0 +1,54 @@
+{
+	"id": "root",
+	"type": "row",
+	"children": [
+		{
+			"id": "sidebar",
+			"type": "column",
+			"size": { "px": 240 },
+			"min": 200,
+			"children": [
+				{
+					"id": "spaces",
+					"type": "block",
+					"size": { "weight": 1 },
+					"content": { "mod": "spaces" }
+				},
+				{
+					"id": "agents",
+					"type": "block",
+					"size": { "weight": 1 },
+					"content": { "mod": "agents" }
+				}
+			]
+		},
+		{
+			"id": "center",
+			"type": "column",
+			"size": { "weight": 1 },
+			"children": [
+				{
+					"id": "orbs",
+					"type": "block",
+					"size": { "px": 48 },
+					"min": 40,
+					"content": { "mod": "zurbit-orbs" }
+				},
+				{
+					"id": "work",
+					"type": "block",
+					"size": { "weight": 1 },
+					"content": { "tab": "active" }
+				}
+			]
+		}
+	],
+	"floating": [
+		{
+			"id": "focus-inbox",
+			"edge": "right",
+			"align": "start",
+			"content": { "mod": "zurbit-inbox" }
+		}
+	]
+}

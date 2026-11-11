@@ -5,6 +5,9 @@ import { loadConfig, configure, api, ApiError } from "./api.js";
 
 const POLL_MS = 5000;
 
+const ION = { working: "#A78BFA", waiting: "#FBBF24", failed: "#FF5C4D", done: "#34D399" };
+const alpha = (c, a) => c + Math.round(Math.min(1, Math.max(0, a)) * 255).toString(16).padStart(2, "0");
+
 const DONE = new Set(["succeeded", "done", "merged", "approved"]);
 const FAIL = new Set(["failed", "lost", "rejected", "cancelled"]);
 const ACTIVE = new Set(["dispatched", "running", "shipping"]);
@@ -12,11 +15,23 @@ const QUIET_TASK = new Set(["succeeded", "failed", "cancelled"]);
 const TERMINAL_TASK = new Set(["done", "cancelled"]);
 
 function statusColor(t, s) {
-	if (DONE.has(s)) return t.done;
-	if (FAIL.has(s)) return t.ansi9;
-	if (s === "blocked" || s === "approval_stale") return t.blocked;
-	if (ACTIVE.has(s)) return t.working;
+	if (DONE.has(s)) return ION.done;
+	if (FAIL.has(s)) return ION.failed;
+	if (s === "blocked" || s === "approval_stale") return ION.waiting;
+	if (ACTIVE.has(s)) return ION.working;
 	return t.muted;
+}
+
+function lamp(color) {
+	return div()
+		.w(10)
+		.h(10)
+		.rounded_full()
+		.bg(alpha(color, 0.25))
+		.flex()
+		.items_center()
+		.justify_center()
+		.child(div().w(5).h(5).rounded_full().bg(color));
 }
 
 function ago(ts) {
@@ -246,7 +261,7 @@ export default class ZurbitFactory extends View {
 		}
 		if (d.error) {
 			return box.child(
-				div().text_size(11).text_color(t.ansi9).child(`⚠ ${d.error}`),
+				div().text_size(11).text_color(ION.failed).child(`⚠ ${d.error}`),
 			);
 		}
 		if (tk.spec) {
@@ -261,7 +276,7 @@ export default class ZurbitFactory extends View {
 			box.child(
 				div()
 					.text_size(11)
-					.text_color(t.blocked)
+					.text_color(ION.waiting)
 					.child(
 						[
 							tk.escalation,
@@ -354,10 +369,25 @@ export default class ZurbitFactory extends View {
 				.justify_between()
 				.children([
 					div().text_size(14).font_semibold().child("Factory"),
-					div()
-						.text_size(11)
-						.text_color(this.err ? t.ansi9 : t.muted)
-						.child(this.err ? `⚠ ${this.err}` : "live"),
+					h_flex()
+						.gap(6)
+						.items_center()
+						.children([
+							lamp(
+								this.err
+									? ION.failed
+									: this.loading
+										? ION.waiting
+										: ION.done,
+							),
+							this.err
+								? div()
+										.text_size(11)
+										.text_color(t.muted)
+										.truncate()
+										.child(`⚠ ${this.err}`)
+								: div(),
+						]),
 				]),
 		);
 

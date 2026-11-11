@@ -23,17 +23,24 @@
 			]
 		},
 		{
-			"id": "inbox",
-			"type": "block",
-			"size": { "px": 360 },
-			"min": 300,
-			"content": { "mod": "zurbit-inbox" }
-		},
-		{
-			"id": "work",
-			"type": "block",
+			"id": "center",
+			"type": "column",
 			"size": { "weight": 3 },
-			"content": { "tab": "active" }
+			"children": [
+				{
+					"id": "orbs",
+					"type": "block",
+					"size": { "px": 48 },
+					"min": 40,
+					"content": { "mod": "zurbit-orbs" }
+				},
+				{
+					"id": "work",
+					"type": "block",
+					"size": { "weight": 1 },
+					"content": { "tab": "active" }
+				}
+			]
 		},
 		{
 			"id": "ops",
@@ -41,6 +48,12 @@
 			"size": { "px": 360 },
 			"min": 280,
 			"children": [
+				{
+					"id": "inbox",
+					"type": "block",
+					"size": { "weight": 2 },
+					"content": { "mod": "zurbit-inbox" }
+				},
 				{
 					"id": "factory",
 					"type": "block",

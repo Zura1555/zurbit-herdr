@@ -30,6 +30,7 @@ surface throughout so the panel code never changes:
 ```sh
 sh install.sh          # symlinks into ~/.config/herdr-app
 herdr-app check ~/.config/herdr-app/mods/zurbit-factory
+herdr-app check ~/.config/herdr-app/mods/zurbit-orbs
 herdr-app do layout.switch '{"name":"zurbit"}'   # or ctrl-shift-l
 ```
 
@@ -66,10 +67,45 @@ verbatim contents.
 
 | Mod | What it shows |
 | --- | --- |
+| `zurbit-orbs` | Compact orb strip across the top of the center column — every machine line and canonical terminal as a small animated orb (nebula SVGs: violet working/slow-spin, amber waiting/pulsing, vermilion failed, mint done, hollow-dashed stale/unreachable). Grouped by machine line with a legend and "N connected · M lines" on the right. Click an orb to `terminal.peek` its pane. Read-only; polls the same runtime-plane feed as `zurbit-sessions`. |
 | `zurbit-inbox` | Plain-language "Needs You" queue — everything awaiting a human decision (plan approvals, merge approvals, sign-offs, failures, blocked agents) grouped by urgency. The PM surface; other mods carry the technical detail. |
 | `zurbit-factory` | Plans awaiting approval, ships awaiting merge approval, active runs, recent tasks. Full task lifecycle (dispatch / sign-off / cancel / requeue), ship reconcile, notifications on newly actionable items. Inline-confirm before any mutating POST. |
 | `zurbit-sessions` | Runtime plane mirror: cores, machine lines, and canonical terminals with verbatim degraded states (`stale`/`unreachable`/`orphaned`/…). Send/interrupt/kill steering on live terminals via `/api/work/commands` with command-outcome polling — send uses preset chips (see `prompts` below) or the `zurbit-prompt.txt` draft file since there is no text-input widget. |
 | `zurbit-automation` | Automation rules (enable/disable/delete), recent fires, first-spend approvals (revoke), cost ledger. Read + toggle + delete only — no create forms. |
+
+Status colors follow the **Ion palette** — violet `#A78BFA` working,
+amber `#FBBF24` waiting/needs-you, vermilion `#FF5C4D` failed, mint
+`#34D399` done — and panel headers show a signal lamp (colored core in a
+halo ring) instead of a `live` text label.
+
+## Layouts
+
+`zurbit` — the full board (design A):
+
+```
+sidebar ┃        center         ┃       ops
+spaces  ┃  ORBS (48px strip)    ┃  Needs You (zurbit-inbox)
+agents  ┃  work (active tab)    ┃  Factory / Sessions / Automation
+```
+
+`zurbit-focus` — the collapsed companion: slim sidebar + orb strip +
+the work surface, no ops column. Needs You survives as a `floating`
+block on the right edge (floating blocks take their size from the mod's
+`mod.json`, so it opens at the inbox's 360px). Switch with:
+
+```sh
+herdr-app do layout.switch '{"name":"zurbit-focus"}'
+herdr-app do layout.switch '{"name":"zurbit"}'   # back — or ctrl-shift-l
+```
+
+**Puck.** The `work` block is `{ "tab": "active" }` — whichever agent tab
+is focused fills it, so the orchestrator is just a chat tab. With
+[herdr-chat](https://github.com/ChmaraX/herdr-chat) installed its mods are
+`chat` / `chat-agents` / `chat-menu` / `new-chat`; to pin a dedicated Puck
+pane instead of the active tab, replace the work block's content with
+`{ "mod": "chat", "props": { "chat": "puck", "provider": "claude", "cwd": "~" } }`.
+The layout works without herdr-chat — the block then just shows ordinary
+terminal tabs.
 
 ## Safety
 

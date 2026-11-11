@@ -8,13 +8,16 @@ APP_HOME="${HERDR_APP_HOME:-$HOME/.config/herdr-app}"
 
 mkdir -p "$APP_HOME/layouts" "$APP_HOME/mods"
 
-ln -sfn "$HERE/layouts/zurbit.json" "$APP_HOME/layouts/zurbit.json"
+for l in "$HERE"/layouts/*.json; do
+	name=$(basename "$l")
+	ln -sfn "$l" "$APP_HOME/layouts/$name"
+done
 for m in "$HERE"/mods/*/; do
 	name=$(basename "$m")
 	ln -sfn "$m" "$APP_HOME/mods/$name"
 done
 
-echo "linked layout + mods → $APP_HOME"
+echo "linked layouts + mods → $APP_HOME"
 if command -v herdr-app >/dev/null 2>&1; then
 	herdr-app check "$APP_HOME/mods/zurbit-factory"
 else
