@@ -1,6 +1,6 @@
 import { View, div, image } from "gpui-kit";
 import { h_flex, v_flex } from "gpui-base";
-import { theme, notify, run, settings } from "herdr";
+import { theme, notify, panes, run, settings } from "herdr";
 import { loadConfig, configure, api, ApiError } from "./api.js";
 
 const POLL_MS = 5000;
@@ -83,6 +83,7 @@ export default class ZurbitOrbs extends View {
 		cx.spawn(async (cx) => {
 			this.cfg = await loadConfig(p);
 			configure(this.cfg);
+			this.ensurePuck();
 			await this.refresh(cx);
 			this.loading = false;
 			cx.notify();
@@ -90,6 +91,41 @@ export default class ZurbitOrbs extends View {
 		cx.timer.every(POLL_MS, (cx) => {
 			if (this.cfg?.base) this.refresh(cx);
 		});
+	}
+
+	// The work surface's dedicated Puck tab: a herdr-chat chat named
+	// "puck" the strip opens once when it isn't already on screen.
+	// "puck": false in zurbit.json/props opts out; an object
+	// {chat, provider, cwd, name} retargets it. Without herdr-chat the
+	// tab.new just fails and the strip says so once.
+	ensurePuck() {
+		const p = this.cfg?.puck;
+		if (p === false) return;
+		const want = typeof p === "object" && p ? p : {};
+		const name = want.name ?? want.chat ?? "puck";
+		const exists = panes().some(
+			(x) =>
+				x.mod === "chat" &&
+				(x.title ?? "").toLowerCase() === name.toLowerCase(),
+		);
+		if (exists) return;
+		try {
+			run("tab.new", {
+				name,
+				mod: "chat",
+				props: {
+					chat: want.chat ?? "puck",
+					provider: want.provider ?? "claude",
+					...(want.cwd ? { cwd: want.cwd } : {}),
+				},
+			});
+		} catch (e) {
+			notify({
+				title: "Zurbit: Puck needs herdr-chat",
+				body: `couldn't open the ${name} chat tab: ${e}`,
+				level: "warning",
+			});
+		}
 	}
 
 	async refresh(cx) {

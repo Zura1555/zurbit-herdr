@@ -98,14 +98,19 @@ herdr-app do layout.switch '{"name":"zurbit-focus"}'
 herdr-app do layout.switch '{"name":"zurbit"}'   # back — or ctrl-shift-l
 ```
 
-**Puck.** The `work` block is `{ "tab": "active" }` — whichever agent tab
-is focused fills it, so the orchestrator is just a chat tab. With
-[herdr-chat](https://github.com/ChmaraX/herdr-chat) installed its mods are
-`chat` / `chat-agents` / `chat-menu` / `new-chat`; to pin a dedicated Puck
-pane instead of the active tab, replace the work block's content with
-`{ "mod": "chat", "props": { "chat": "puck", "provider": "claude", "cwd": "~" } }`.
-The layout works without herdr-chat — the block then just shows ordinary
-terminal tabs.
+**Puck.** With [herdr-chat](https://github.com/ChmaraX/herdr-chat)
+installed, the orb strip opens a dedicated chat tab named `puck` in the
+work surface the first time it loads without one — the orchestrator
+session is there by default. Tune it in `zurbit.json` (same precedence as
+`base`/`token`, or `localStorage` `zurbit.puck`):
+
+```json
+{ "puck": { "chat": "puck", "provider": "claude", "cwd": "~" } }
+```
+
+`"puck": false` disables the auto-open entirely. Without herdr-chat the
+`tab.new` fails and the strip posts a one-time "needs herdr-chat" toast —
+the rest of the layout is unaffected.
 
 ## Safety
 

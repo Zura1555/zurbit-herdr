@@ -21,6 +21,16 @@ export async function loadConfig(p) {
 	try {
 		file = JSON.parse(await readTextFile(`${appHome()}/zurbit.json`));
 	} catch {}
+	const puckRaw =
+		p?.puck ?? localStorage.getItem("zurbit.puck") ?? file.puck ?? null;
+	let puck = puckRaw;
+	if (typeof puckRaw === "string") {
+		try {
+			puck = JSON.parse(puckRaw);
+		} catch {
+			puck = puckRaw === "false" || puckRaw === "0" ? false : null;
+		}
+	}
 	return {
 		base: p?.base ?? localStorage.getItem("zurbit.base") ?? file.base ?? null,
 		token:
@@ -29,6 +39,7 @@ export async function loadConfig(p) {
 			file.token ??
 			null,
 		cookie: localStorage.getItem("zurbit.cookie") ?? file.cookie ?? null,
+		puck,
 	};
 }
 
