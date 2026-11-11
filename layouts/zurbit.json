@@ -23,6 +23,13 @@
 			]
 		},
 		{
+			"id": "inbox",
+			"type": "block",
+			"size": { "px": 360 },
+			"min": 300,
+			"content": { "mod": "zurbit-inbox" }
+		},
+		{
 			"id": "work",
 			"type": "block",
 			"size": { "weight": 3 },
@@ -34,12 +41,6 @@
 			"size": { "px": 360 },
 			"min": 280,
 			"children": [
-				{
-					"id": "inbox",
-					"type": "block",
-					"size": { "weight": 2 },
-					"content": { "mod": "zurbit-inbox" }
-				},
 				{
 					"id": "factory",
 					"type": "block",
