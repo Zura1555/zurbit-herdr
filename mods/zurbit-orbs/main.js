@@ -1,4 +1,4 @@
-import { View, div, svg } from "gpui-kit";
+import { View, div, image } from "gpui-kit";
 import { h_flex, v_flex } from "gpui-base";
 import { theme, notify, run, settings } from "herdr";
 import { loadConfig, configure, api, ApiError } from "./api.js";
@@ -112,10 +112,15 @@ export default class ZurbitOrbs extends View {
 	orb(tm, t, mono) {
 		const state = orbState(tm);
 		const addr = termTitle(tm);
-		let ball = svg(`mods/${MOD}/icons/orb-${state}.svg`)
+		// svg() paints a one-color alpha mask — image() keeps the nebula's
+		// colors. spin() is svg-only, so liveness shows as an opacity loop:
+		// a gentle breathe for working, a stronger pulse for waiting.
+		let ball = image(`mods/${MOD}/icons/orb-${state}.svg`)
 			.size(22)
 			.flex_none();
-		if (state === "working") ball = ball.spin(2400);
+		if (state === "working") {
+			ball = ball.loop("opacity", { from: 0.7, to: 1, period: 2000 });
+		}
 		if (state === "waiting") {
 			ball = ball.loop("opacity", { from: 0.55, to: 1, period: 1400 });
 		}
@@ -137,7 +142,13 @@ export default class ZurbitOrbs extends View {
 			])
 			.on_click((_e, cx) => {
 				try {
-					run("terminal.peek", { terminal: addr });
+					// Bare addresses mean "this machine"; other lines need
+					// the machine-qualified form.
+					const target =
+						tm.machine && tm.machine !== "local"
+							? `${tm.machine}/${addr}`
+							: addr;
+					run("terminal.peek", { terminal: target });
 				} catch (e) {
 					notify({
 						title: "Zurbit: peek failed",

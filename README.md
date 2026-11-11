@@ -67,7 +67,7 @@ verbatim contents.
 
 | Mod | What it shows |
 | --- | --- |
-| `zurbit-orbs` | Compact orb strip across the top of the center column — every machine line and canonical terminal as a small animated orb (nebula SVGs: violet working/slow-spin, amber waiting/pulsing, vermilion failed, mint done, hollow-dashed stale/unreachable). Grouped by machine line with a legend and "N connected · M lines" on the right. Click an orb to `terminal.peek` its pane. Read-only; polls the same runtime-plane feed as `zurbit-sessions`. |
+| `zurbit-orbs` | Compact orb strip across the top of the center column — every machine line and canonical terminal as a small animated orb (full-color nebula sprites via `image()`: violet working/breathing, amber waiting/pulsing, vermilion failed, mint done, hollow-dashed stale/unreachable). Grouped by machine line with a legend and "N connected · M lines" on the right. Click an orb to `terminal.peek` its pane (remote lines pass `machine/address`). Read-only; polls the same runtime-plane feed as `zurbit-sessions`. |
 | `zurbit-inbox` | Plain-language "Needs You" queue — everything awaiting a human decision (plan approvals, merge approvals, sign-offs, failures, blocked agents) grouped by urgency. The PM surface; other mods carry the technical detail. |
 | `zurbit-factory` | Plans awaiting approval, ships awaiting merge approval, active runs, recent tasks. Full task lifecycle (dispatch / sign-off / cancel / requeue), ship reconcile, notifications on newly actionable items. Inline-confirm before any mutating POST. |
 | `zurbit-sessions` | Runtime plane mirror: cores, machine lines, and canonical terminals with verbatim degraded states (`stale`/`unreachable`/`orphaned`/…). Send/interrupt/kill steering on live terminals via `/api/work/commands` with command-outcome polling — send uses preset chips (see `prompts` below) or the `zurbit-prompt.txt` draft file since there is no text-input widget. |
@@ -89,9 +89,9 @@ agents  ┃  work (active tab)    ┃  Factory / Sessions / Automation
 ```
 
 `zurbit-focus` — the collapsed companion: slim sidebar + orb strip +
-the work surface, no ops column. Needs You survives as a `floating`
-block on the right edge (floating blocks take their size from the mod's
-`mod.json`, so it opens at the inbox's 360px). Switch with:
+the work surface, no ops column. Needs You survives as a floating
+`peek` drawer on the right edge — a 10 px sliver until hovered, then it
+slides out at the inbox's content width. Switch with:
 
 ```sh
 herdr-app do layout.switch '{"name":"zurbit-focus"}'

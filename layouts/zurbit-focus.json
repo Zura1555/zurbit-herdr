@@ -48,6 +48,7 @@
 			"id": "focus-inbox",
 			"edge": "right",
 			"align": "start",
+			"peek": 10,
 			"content": { "mod": "zurbit-inbox" }
 		}
 	]
