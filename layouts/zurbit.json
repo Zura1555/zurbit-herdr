@@ -29,11 +29,30 @@
 			"content": { "tab": "active" }
 		},
 		{
-			"id": "factory",
-			"type": "block",
+			"id": "ops",
+			"type": "column",
 			"size": { "px": 360 },
 			"min": 280,
-			"content": { "mod": "zurbit-factory" }
+			"children": [
+				{
+					"id": "factory",
+					"type": "block",
+					"size": { "weight": 2 },
+					"content": { "mod": "zurbit-factory" }
+				},
+				{
+					"id": "sessions",
+					"type": "block",
+					"size": { "weight": 2 },
+					"content": { "mod": "zurbit-sessions" }
+				},
+				{
+					"id": "automation",
+					"type": "block",
+					"size": { "weight": 1 },
+					"content": { "mod": "zurbit-automation" }
+				}
+			]
 		}
 	]
 }

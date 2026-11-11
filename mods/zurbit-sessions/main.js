@@ -17,7 +17,13 @@ function statusColor(t, s) {
 	return t.muted; // unreachable / unknown / orphaned / finished / …
 }
 
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// If the mod runtime has no setTimeout, fall back to an immediately
+// resolved sleep — the poll loop then just reports the last status
+// seen, which steer() already tolerates.
+const sleep =
+	typeof setTimeout === "function"
+		? (ms) => new Promise((r) => setTimeout(r, ms))
+		: () => Promise.resolve();
 
 // Addresses arrive already prefixed ("t17"), but tolerate a bare "17"
 // so the title never comes out as "tt17".

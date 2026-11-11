@@ -1,9 +1,11 @@
 # Zurbit × Herdr app
 
 Herdr desktop-app surface for Zurbit: a layout + mods that render the
-factory plane (plans, tasks, runs, ships) inside the Herdr window, next to
-the terminals they steer. This repo mirrors the layout of the Herdr app
-home so `install.sh` can link it straight in.
+factory plane (plans, tasks, runs, ships), the runtime plane (cores,
+machine lines, terminals), and the automation plane (rules, fires,
+approvals, ledger) inside the Herdr window, next to the terminals they
+steer. This repo mirrors the layout of the Herdr app home so `install.sh`
+can link it straight in.
 
 ## Migration plan — the Worker is being deprecated
 
