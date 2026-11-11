@@ -58,7 +58,9 @@ Worker during the transition.
 
 | Mod | What it shows |
 | --- | --- |
-| `zurbit-factory` | Plans awaiting approval, ships awaiting merge approval, active runs, recent tasks. Inline-confirm before any mutating POST. |
+| `zurbit-factory` | Plans awaiting approval, ships awaiting merge approval, active runs, recent tasks. Full task lifecycle (dispatch / sign-off / cancel / requeue), ship reconcile, notifications on newly actionable items. Inline-confirm before any mutating POST. |
+| `zurbit-sessions` | Runtime plane mirror: cores, machine lines, and canonical terminals with verbatim degraded states (`stale`/`unreachable`/`orphaned`/…). Interrupt/kill steering on live terminals via `/api/work/commands` with command-outcome polling. |
+| `zurbit-automation` | Automation rules (enable/disable/delete), recent fires, first-spend approvals (revoke), cost ledger. Read + toggle + delete only — no create forms. |
 
 ## Safety
 
