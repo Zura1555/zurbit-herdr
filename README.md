@@ -83,9 +83,10 @@ halo ring) instead of a `live` text label.
 `zurbit` — the full board (design A):
 
 ```
-sidebar ┃        center         ┃       ops
+sidebar ┃        center         ┃       ops (340px)
 spaces  ┃  ORBS (48px strip)    ┃  Needs You (zurbit-inbox)
-agents  ┃  work (active tab)    ┃  Factory / Sessions / Automation
+agents  ┃  work (active tab)    ┃  Factory (zurbit-factory)
+        ┃                       ┃  [Sessions | Automation] tabs
 ```
 
 `zurbit-focus` — the collapsed companion: slim sidebar + orb strip +

@@ -350,7 +350,7 @@ export default class ZurbitFactory extends View {
 			.bg(t.raised)
 			.items_center()
 			.children([
-				v_flex().flex_1().gap(2).children([titleDiv, subDiv]),
+				v_flex().flex_1().min_w_0().gap(2).children([titleDiv, subDiv]),
 				div()
 					.text_size(11)
 					.text_color(statusColor(t, status))

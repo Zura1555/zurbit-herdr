@@ -194,6 +194,7 @@ export default class ZurbitInbox extends View {
 			.children([
 				v_flex()
 					.flex_1()
+					.min_w_0()
 					.gap(2)
 					.children([
 						div()

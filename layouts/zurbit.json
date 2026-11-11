@@ -45,7 +45,7 @@
 		{
 			"id": "ops",
 			"type": "column",
-			"size": { "px": 360 },
+			"size": { "px": 340 },
 			"min": 280,
 			"children": [
 				{
@@ -61,16 +61,25 @@
 					"content": { "mod": "zurbit-factory" }
 				},
 				{
-					"id": "sessions",
-					"type": "block",
+					"id": "ops-panels",
+					"type": "stack",
 					"size": { "weight": 2 },
-					"content": { "mod": "zurbit-sessions" }
-				},
-				{
-					"id": "automation",
-					"type": "block",
-					"size": { "weight": 1 },
-					"content": { "mod": "zurbit-automation" }
+					"header": { "content": "tabs", "height": 26 },
+					"active": "sessions",
+					"children": [
+						{
+							"id": "sessions",
+							"title": "Sessions",
+							"type": "block",
+							"content": { "mod": "zurbit-sessions" }
+						},
+						{
+							"id": "automation",
+							"title": "Automation",
+							"type": "block",
+							"content": { "mod": "zurbit-automation" }
+						}
+					]
 				}
 			]
 		}
