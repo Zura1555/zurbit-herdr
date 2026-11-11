@@ -109,14 +109,25 @@ export default class ZurbitOrbs extends View {
 				(x.title ?? "").toLowerCase() === name.toLowerCase(),
 		);
 		if (exists) return;
+		const provider = want.provider ?? "pi";
+		// Oh My Pi is the default pi harness: herdr-chat picks the agent
+		// binary via HERDR_CHAT_<PROVIDER>, so `omp` rides the pi adapter.
+		const command = want.command ?? (provider === "pi" ? "omp" : null);
 		try {
 			run("tab.new", {
 				name,
 				mod: "chat",
 				props: {
 					chat: want.chat ?? "puck",
-					provider: want.provider ?? "claude",
+					provider,
 					...(want.cwd ? { cwd: want.cwd } : {}),
+					...(command
+						? {
+								hostEnv: {
+									[`HERDR_CHAT_${provider.toUpperCase()}`]: command,
+								},
+							}
+						: {}),
 				},
 			});
 		} catch (e) {

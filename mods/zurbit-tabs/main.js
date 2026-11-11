@@ -1,6 +1,6 @@
 import { View, div } from "gpui-kit";
 import { v_flex, h_flex } from "gpui-base";
-import { theme, spaces, run } from "herdr";
+import { theme, spaces, run, appHome, readTextFile, notify } from "herdr";
 
 const MOD = "zurbit-tabs";
 
@@ -39,7 +39,141 @@ function lamp(status) {
 }
 
 
+// Puck config: pane props -> localStorage -> zurbit.json, same chain
+// as the zurbit-* api mods. {chat, provider, cwd, name}; "puck": false
+// hides the launcher entirely.
+async function loadPuck(p) {
+	let file = {};
+	try {
+		file =
+			JSON.parse(await readTextFile(`${appHome()}/zurbit.json`)) ?? {};
+	} catch {}
+	const raw =
+		p?.puck ?? localStorage.getItem("zurbit.puck") ?? file.puck ?? null;
+	let puck = raw;
+	if (typeof raw === "string") {
+		try {
+			puck = JSON.parse(raw);
+		} catch {
+			puck = raw === "false" || raw === "0" ? false : null;
+		}
+	}
+	if (puck === false) return false;
+	const want = typeof puck === "object" && puck ? puck : {};
+	return {
+		name: want.name ?? want.chat ?? "puck",
+		chat: want.chat ?? "puck",
+		provider: want.provider ?? "pi",
+		cwd: want.cwd,
+		command: want.command,
+	};
+}
+
 export default class ZurbitTabs extends View {
+	init(p, cx) {
+		this.puck = { name: "puck", chat: "puck", provider: "pi" };
+		cx.spawn(async (cx) => {
+			this.puck = await loadPuck(p);
+			cx.notify();
+		});
+	}
+
+	// The orchestrator, as a tab: find the tab named "puck" (or the
+	// configured chat) across every space.
+	findPuck() {
+		if (!this.puck) return null;
+		const name = (this.puck.name ?? "puck").toLowerCase();
+		for (const sp of spaces()) {
+			for (const tb of sp.tabs) {
+				if ((tb.name ?? "").toLowerCase() === name) {
+					return { space: sp, tab: tb };
+				}
+			}
+		}
+		return null;
+	}
+
+	// Focus the Puck tab if it exists; otherwise open it — a herdr-chat
+	// chat on the pi harness, same as the strip's ensurePuck.
+	openPuck() {
+		const hit = this.findPuck();
+		if (hit) {
+			if (!hit.space.active) run("space.select", { id: hit.space.id });
+			run("tab.select", { id: hit.tab.id });
+			return;
+		}
+		const w = this.puck;
+		// Same Oh My Pi default as the strip's ensurePuck.
+		const command = w.command ?? (w.provider === "pi" ? "omp" : null);
+		try {
+			run("tab.new", {
+				name: w.name,
+				mod: "chat",
+				props: {
+					chat: w.chat,
+					provider: w.provider,
+					...(w.cwd ? { cwd: w.cwd } : {}),
+					...(command
+						? {
+								hostEnv: {
+									[`HERDR_CHAT_${w.provider.toUpperCase()}`]: command,
+								},
+							}
+						: {}),
+				},
+			});
+		} catch (e) {
+			notify({
+				title: "Zurbit: Puck needs herdr-chat",
+				body: `couldn't open the ${w.name} chat tab: ${e}`,
+				level: "warning",
+			});
+		}
+	}
+
+	puckRow(t) {
+		const hit = this.findPuck();
+		const on = hit?.tab.active ?? false;
+		return h_flex()
+			.id("puck")
+			.gap(8)
+			.items_center()
+			.px(6)
+			.py(5)
+			.rounded(6)
+			.bg(on ? t.raised : t.raised)
+			.hover((s) => s.bg(t.hover))
+			.cursor_pointer()
+			.on_click((_e, cx) => {
+				this.openPuck();
+				cx.notify();
+			})
+			.children([
+				lamp(hit ? hit.tab.status : null),
+				v_flex()
+					.flex_1()
+					.min_w_0()
+					.gap(1)
+					.children([
+						div()
+							.text_size(12)
+							.font_semibold()
+							.text_color(t.foreground)
+							.truncate()
+							.child(this.puck.name ?? "Puck"),
+						div()
+							.text_size(10)
+							.text_color(t.muted)
+							.truncate()
+							.child(
+								hit
+									? `orchestrator · ${hit.space.name}`
+									: `orchestrator · ${this.puck.provider ?? "pi"} harness`,
+							),
+					]),
+			]);
+	}
+
 	tabRow(t, sp, tab) {
 		const sub = tab.settled
 			? "settled"
@@ -158,6 +292,11 @@ export default class ZurbitTabs extends View {
 
 		const sps = spaces();
 		const list = v_flex().flex_1().gap(8).overflow_y_scrollbar();
+
+		if (this.puck !== false) {
+			list.child(this.puckRow(t));
+			list.child(div().h(1).bg(t.border).mx(6));
+		}
 
 		for (const sp of sps) list.child(this.spaceSection(t, sp));
 		if (!sps.length) {

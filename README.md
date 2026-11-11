@@ -103,16 +103,24 @@ herdr-app do layout.switch '{"name":"zurbit"}'   # back — or ctrl-shift-l
 **Puck.** With [herdr-chat](https://github.com/ChmaraX/herdr-chat)
 installed, the orb strip opens a dedicated chat tab named `puck` in the
 work surface the first time it loads without one — the orchestrator
-session is there by default. Tune it in `zurbit.json` (same precedence as
-`base`/`token`, or `localStorage` `zurbit.puck`):
+session is there by default. `zurbit-tabs` also pins a **Puck launcher**
+at the top of the sidebar: it shows the orchestrator's status lamp and
+space, focuses the tab when it exists, and creates it when it doesn't.
+Tune it in `zurbit.json` (same precedence as `base`/`token`, or
+`localStorage` `zurbit.puck`):
 
 ```json
-{ "puck": { "chat": "puck", "provider": "claude", "cwd": "~" } }
+{ "puck": { "chat": "puck", "provider": "pi", "command": "omp", "cwd": "~" } }
 ```
 
-`"puck": false` disables the auto-open entirely. Without herdr-chat the
-`tab.new` fails and the strip posts a one-time "needs herdr-chat" toast —
-the rest of the layout is unaffected.
+`provider` defaults to `pi` and `command` to `omp` — the
+[Oh My Pi](https://github.com/can1357/oh-my-pi) harness — passed to
+herdr-chat as `HERDR_CHAT_<PROVIDER>` (`hostEnv` prop), so the pi
+adapter spawns `omp`. Set `"command": "pi"` for a stock Pi install, or
+`"provider": "claude"`/`"codex"` for other agents. `"puck": false` disables the
+auto-open entirely. Without herdr-chat the `tab.new` fails and the strip
+posts a one-time "needs herdr-chat" toast — the rest of the layout is
+unaffected.
 
 ## Safety
 
